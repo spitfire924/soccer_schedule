@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1 id="editable-title">{{ title }}</h1>
+        {% if is_local %}
+            <form id="title-form" action="/update_title" method="POST" style="display: none;">
+                <input type="text" name="new_title" value="{{ title }}" required>
+                <input type="submit" value="Save" class="save-button">
+            </form>
+        {% endif %}
+
+        <div class="editable-details">
+            <h2>Event Details</h2>
+            <p id="editable-location" class="editable-text">{{ location }}</p>
+            <p id="editable-time" class="editable-text">{{ event_time }}</p>
+            {% if is_local %}
+                <form id="details-form" action="/update_details" method="POST" style="display: none;">
+                    <input type="text" name="location" value="{{ location }}" required placeholder="Event Location">
+                    <input type="text" name="event_time" value="{{ event_time }}" required placeholder="Event Time">
+                    <input type="submit" value="Save Details" class="save-button">
+                </form>
+            {% endif %}
+        </div>
+
+        <div class="form-container">
+            <h2>Add New Participant</h2>
+            {% if is_local %}
+                <form action="/" method="POST">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required>
+                    <input type="submit" name="add" value="Add Participant">
+                </form>
+            {% endif %}
+        </div>
+
+        <div class="list-container">
+            <h2>Participants List (Total: {{ participants_count }})</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        {% if is_local %}
+                            <th>Action</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for participant in participants %}
+                        <tr>
+                            <td>{{ participant }}</td>
+                            {% if is_local %}
+                                <td>
+                                    <form action="/" method="POST" class="remove-form" style="display:inline;">
+                                        <input type="hidden" name="index" value="{{ loop.index0 }}">
+                                        <input type="submit" name="remove" value="Remove" class="remove-button">
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_local %}
+        <!-- Clear List Button -->
+        <form action="{{ url_for('clear_participants') }}" method="POST" class="clear-form">
+        <button type="submit" class="clear-button">Clear List</button>
+        </form>
+        {% endif %} 
+    </div>
+</body>
+</html>
